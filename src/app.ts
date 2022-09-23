@@ -1,5 +1,6 @@
 import "dotenv/config";
-import express, { Router, Request, Response, response } from "express";
+import express, { Router } from "express";
+import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
@@ -8,6 +9,26 @@ import { CreateSurveyPayload, JoinSurveyPayload, Survey } from "./types";
 const app = express();
 const survey = Router();
 const jsonParser = bodyParser.json();
+
+const corsOptions: CorsOptions = {
+  origin: "*",
+  methods: [
+    'DELETE',
+    'GET',
+    'HEAD',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT'
+  ],
+  allowedHeaders: [
+    'Content-Type',
+    'X-Amz-Date',
+    'Authorization',
+    'X-Api-Key',
+    'X-Amz-Security-Token'
+  ]
+}
 
 survey.use(jsonParser);
 
@@ -112,6 +133,7 @@ survey.get("/:id", async (req, res) => {
 //   res.send(`vote to delete survey ${req.params.id}`);
 // });
 
+app.use(cors(corsOptions));
 app.use("/survey", survey);
 app.get("*", (req, res) => res.sendStatus(404));
 
