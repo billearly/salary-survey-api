@@ -31,3 +31,9 @@ jobs:
 
       - name: Zip
         run: zip -r lambda.zip ./build/* ./node_modules
+
+      - name: Save package
+        uses: actions/upload-artifact@v3
+        with:
+          name: lambda
+          path: lambda.zip
