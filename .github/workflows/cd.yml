@@ -1,0 +1,33 @@
+name: CI
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# testing
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Prune
+        run: npm prune --production
+
+      - name: Zip
+        run: zip -r lambda.zip ./build/* ./node_modules
