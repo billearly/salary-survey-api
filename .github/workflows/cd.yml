@@ -1,4 +1,4 @@
-name: Deploy
+name: CD
 
 # on:
 #   push:
@@ -9,7 +9,7 @@ name: Deploy
 on: [pull_request]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -30,7 +30,7 @@ jobs:
         run: npm prune --production
 
       - name: Zip
-        run: zip lambda.zip ./build/* ./node_modules
+        run: zip lambda.zip ./build/* ./node_modules/
 
       - name: Save package
         uses: actions/upload-artifact@v3
