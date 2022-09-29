@@ -30,7 +30,7 @@ jobs:
         run: npm prune --production
 
       - name: Zip
-        run: zip -r lambda.zip node_modules -j build/*
+        run: zip -r lambda.zip node_modules/* build/*
 
       - name: Save package
         uses: actions/upload-artifact@v3
