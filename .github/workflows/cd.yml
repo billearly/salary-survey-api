@@ -1,12 +1,9 @@
 name: CD
 
-# on:
-#   push:
-#     branches:
-#       - main
-
-# testing
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -33,9 +30,8 @@ jobs:
         run: |
           zip -r lambda.zip node_modules/*
           zip -g -j lambda.zip build/*
-        # run: zip -r lambda.zip node_modules/* build/*
 
-      - name: Save package
+      - name: Save package artifact
         uses: actions/upload-artifact@v3
         with:
           name: lambda
