@@ -4,7 +4,7 @@ import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
-import { CreateSurveyPayload, JoinSurveyPayload, Survey } from "./types";
+import { CreateSurveyPayload, ErrorReasons, JoinSurveyPayload, Survey } from "./types";
 
 const app = express();
 const survey = Router();
@@ -44,6 +44,7 @@ survey.post("/create", async (req, res) => {
         surveyId,
         creatorId,
         name: payload.name,
+        minNumberResponses: payload.minNumberResponses,
         responses: [
           {
             respondentId: creatorId,
@@ -63,7 +64,7 @@ survey.post("/create", async (req, res) => {
       res.sendStatus(400);
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.sendStatus(500);
   }
 });
@@ -115,7 +116,18 @@ survey.get("/:id", async (req, res) => {
     // Currently able to tell the creator's pay based on response
 
     if (survey) {
-      res.send(survey);
+      const numAdditionalResponsesNeeded = survey.minNumberResponses - survey.responses.length;
+
+      if (numAdditionalResponsesNeeded <= 0) {
+        res.send(survey);
+      } else {
+        res.status(401).send({
+          reason: ErrorReasons.NOT_ENOUGH_RESPONSES,
+          meta: {
+            numAdditionalResponsesNeeded
+          }
+        })
+      }
     } else {
       res.sendStatus(404);
     }
@@ -142,7 +154,7 @@ export { app };
 const isCreateSurveyPayload = (
   payload: any
 ): payload is CreateSurveyPayload => {
-  return payload && payload.name && payload.pay && payload.schedule;
+  return payload && payload.name && payload.pay && payload.schedule && payload.minNumberResponses;
 };
 
 const isJoinSurveyPayload = (payload: any): payload is JoinSurveyPayload => {

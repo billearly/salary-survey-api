@@ -2,6 +2,7 @@ export type Survey = {
   surveyId: string;
   creatorId: string;
   name: string;
+  minNumberResponses: number;
   responses: SurveyResponse[];
 };
 
@@ -14,6 +15,7 @@ export type SurveyResponse = {
 export type CreateSurveyPayload = {
   name: string;
   pay: number;
+  minNumberResponses: number;
   schedule: PaySchedule;
 };
 
@@ -29,4 +31,8 @@ export enum PaySchedule {
   TWICE_A_MONTH = "TWICE_A_MONTH", // * 24
   MONTHLY = "MONTHLY", // * 12
   YEARLY = "YEARLY", // * 1
+}
+
+export enum ErrorReasons {
+  NOT_ENOUGH_RESPONSES = "NOT_ENOUGH_RESPONSES"
 }
