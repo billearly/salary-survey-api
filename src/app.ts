@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
 import { CreateSurveyPayload, ErrorReasons, JoinSurveyPayload, Survey } from "./types";
+import e from "express";
 
 const app = express();
 const survey = Router();
@@ -133,6 +134,21 @@ survey.get("/:id", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+survey.get("/:id/exists", async (req, res) => {
+  try {
+    const survey = await getSurvey(req.params.id);
+
+    if (survey) {
+      res.sendStatus(204);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (e) {
+    console.error(e);
     res.sendStatus(500);
   }
 });
