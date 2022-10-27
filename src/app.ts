@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
 import { CreateSurveyPayload, ErrorReasons, JoinSurveyPayload, Survey } from "./types";
-import e from "express";
 
 const app = express();
 const survey = Router();
