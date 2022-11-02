@@ -4,7 +4,7 @@ import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
-import { CreateSurveyPayload, ErrorReasons, JoinSurveyPayload, Survey } from "./types";
+import { CreateSurveyPayload, JoinSurveyPayload, PaySchedule, Survey } from "./types";
 
 const app = express();
 const survey = Router();
@@ -116,17 +116,20 @@ survey.get("/:id", async (req, res) => {
     // Currently able to tell the creator's pay based on response
 
     if (survey) {
-      const numAdditionalResponsesNeeded = survey.minNumberResponses - survey.responses.length;
-
-      if (numAdditionalResponsesNeeded <= 0) {
+      if (survey.responses.length >= survey.minNumberResponses) {
         res.send(survey);
       } else {
-        res.status(401).send({
-          reason: ErrorReasons.NOT_ENOUGH_RESPONSES,
-          meta: {
-            numAdditionalResponsesNeeded
-          }
-        })
+        // Send the survey with the responses masked
+        const maskedSurvey: Survey = {
+          ...survey,
+          responses: survey.responses.map(() => ({
+            respondentId: "",
+            pay: 0,
+            schedule: PaySchedule.HOURLY
+          }))
+        }
+
+        res.send(maskedSurvey);
       }
     } else {
       res.sendStatus(404);

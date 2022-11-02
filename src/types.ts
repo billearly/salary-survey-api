@@ -32,7 +32,3 @@ export enum PaySchedule {
   MONTHLY = "MONTHLY", // * 12
   YEARLY = "YEARLY", // * 1
 }
-
-export enum ErrorReasons {
-  NOT_ENOUGH_RESPONSES = "NOT_ENOUGH_RESPONSES"
-}
