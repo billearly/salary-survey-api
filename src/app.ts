@@ -140,6 +140,21 @@ survey.get("/:id", async (req, res) => {
   }
 });
 
+survey.get("/:id/exists", async (req, res) => {
+  try {
+    const survey = await getSurvey(req.params.id);
+
+    if (survey) {
+      res.sendStatus(204);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
 // survey.delete("/:id", (req, res) => {
 //   res.send(`delete survey ${req.params.id}`);
 // });
