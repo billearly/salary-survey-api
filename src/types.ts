@@ -12,6 +12,19 @@ export type SurveyResponse = {
   schedule: PaySchedule;
 };
 
+export type SurveyView = {
+  surveyId: string;
+  name: string;
+  minNumberResponses: number;
+  responses: SurveyResponseView[];
+}
+
+export type SurveyResponseView = {
+  isMyResponse: boolean;
+  pay: number;
+  schedule: PaySchedule;
+}
+
 export type CreateSurveyPayload = {
   name: string;
   pay: number;
