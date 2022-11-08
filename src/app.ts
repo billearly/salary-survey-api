@@ -4,7 +4,8 @@ import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
-import { CreateSurveyPayload, JoinSurveyPayload, PaySchedule, Survey } from "./types";
+import { CreateSurveyPayload, JoinSurveyPayload, PaySchedule, Survey, SurveyView } from "./types";
+import { mapSurveyToView } from "./map";
 
 const app = express();
 const survey = Router();
@@ -112,18 +113,25 @@ survey.get("/:id", async (req, res) => {
   try {
     const survey = await getSurvey(req.params.id);
 
-    // TODO: Need to sanitize the creator info
-    // Currently able to tell the creator's pay based on response
-
     if (survey) {
-      if (survey.responses.length >= survey.minNumberResponses) {
-        res.send(survey);
+      const myRespondentId = req.headers["x-respondent-id"];
+
+      if (!myRespondentId || Array.isArray(myRespondentId)) {
+        throw new Error("invalid x-respondent-id header");
+      }
+
+      // Map survey from persistence type to view type
+      const mappedSurvey = mapSurveyToView(survey, myRespondentId)
+
+      if (mappedSurvey.responses.length >= mappedSurvey.minNumberResponses) {
+        res.send(mappedSurvey);
       } else {
+        // There are not enough responses
         // Send the survey with the responses masked
-        const maskedSurvey: Survey = {
-          ...survey,
-          responses: survey.responses.map(() => ({
-            respondentId: "",
+        const maskedSurvey: SurveyView = {
+          ...mappedSurvey,
+          responses: mappedSurvey.responses.map(() => ({
+            isMyResponse: false,
             pay: 0,
             schedule: PaySchedule.HOURLY
           }))
