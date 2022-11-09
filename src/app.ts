@@ -115,8 +115,7 @@ survey.get("/:id", async (req, res) => {
     const survey = await getSurvey(req.params.id);
 
     if (survey) {
-      // const myRespondentId = req.headers["x-respondent-id"];
-      const myRespondentId = 'abc';
+      const myRespondentId = req.headers["x-respondent-id"];
 
       if (Array.isArray(myRespondentId)) {
         throw new Error("invalid x-respondent-id header");
