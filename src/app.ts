@@ -4,7 +4,7 @@ import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
-import { CreateSurveyPayload, JoinSurveyPayload, PaySchedule, Survey, SurveyView } from "./types";
+import { CreateSurveyPayload, JoinSurveyPayload, Survey } from "./types";
 import { mapSurveyToView } from "./map";
 
 const app = express();
@@ -27,7 +27,8 @@ const corsOptions: CorsOptions = {
     'X-Amz-Date',
     'Authorization',
     'X-Api-Key',
-    'X-Amz-Security-Token'
+    'X-Amz-Security-Token',
+    'X-Respondent-ID'
   ]
 }
 
@@ -114,31 +115,16 @@ survey.get("/:id", async (req, res) => {
     const survey = await getSurvey(req.params.id);
 
     if (survey) {
-      const myRespondentId = req.headers["x-respondent-id"];
+      // const myRespondentId = req.headers["x-respondent-id"];
+      const myRespondentId = 'abc';
 
-      if (!myRespondentId || Array.isArray(myRespondentId)) {
+      if (Array.isArray(myRespondentId)) {
         throw new Error("invalid x-respondent-id header");
       }
 
-      // Map survey from persistence type to view type
-      const mappedSurvey = mapSurveyToView(survey, myRespondentId)
+      const mappedSurvey = mapSurveyToView(survey, myRespondentId);
 
-      if (mappedSurvey.responses.length >= mappedSurvey.minNumberResponses) {
-        res.send(mappedSurvey);
-      } else {
-        // There are not enough responses
-        // Send the survey with the responses masked
-        const maskedSurvey: SurveyView = {
-          ...mappedSurvey,
-          responses: mappedSurvey.responses.map(() => ({
-            isMyResponse: false,
-            pay: 0,
-            schedule: PaySchedule.HOURLY
-          }))
-        }
-
-        res.send(maskedSurvey);
-      }
+      res.send(mappedSurvey);
     } else {
       res.sendStatus(404);
     }

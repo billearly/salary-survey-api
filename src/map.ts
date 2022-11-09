@@ -1,18 +1,30 @@
-import { Survey, SurveyResponse, SurveyResponseView, SurveyView } from "./types";
+import { PaySchedule, Survey, SurveyResponse, SurveyView } from "./types";
 
-export const mapSurveyToView = (survey: Survey, myRespondentId: string): SurveyView => {
+export const mapSurveyToView = (survey: Survey, myRespondentId: string | undefined): SurveyView => {
+  const hasResponded = hasRespondedToThisSurvey(survey.responses, myRespondentId);
+
   return {
     surveyId: survey.surveyId,
-    name: survey.name,
+    name: hasResponded ? survey.name : '',
     minNumberResponses: survey.minNumberResponses,
-    responses: survey.responses.map(response => mapResponseToView(response, myRespondentId))
+    responses: survey.responses.map(response => {
+      if (!hasResponded || survey.responses.length < survey.minNumberResponses) {
+        return {
+          isMyResponse: false,
+          pay: 0,
+          schedule: PaySchedule.HOURLY
+        }
+      }
+
+      return {
+        isMyResponse: response.respondentId === myRespondentId,
+        pay: response.pay,
+        schedule: response.schedule
+      }
+    })
   }
 }
 
-const mapResponseToView = (surveyResponse: SurveyResponse, myRespondentId: string): SurveyResponseView => {
-  return {
-    isMyResponse: surveyResponse.respondentId === myRespondentId,
-    pay: surveyResponse.pay,
-    schedule: surveyResponse.schedule
-  }
+const hasRespondedToThisSurvey = (responses: SurveyResponse[], myRespondentId: string | undefined): boolean => {
+  return !!responses.find(res => res.respondentId === myRespondentId);
 }
