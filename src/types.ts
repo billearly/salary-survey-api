@@ -1,5 +1,9 @@
+import { DateTime } from "luxon";
+
 export type Survey = {
   surveyId: string;
+  creationDate: DateTime;
+  expirationDate: DateTime;
   creatorId: string;
   name: string;
   minNumberResponses: number;
@@ -14,6 +18,8 @@ export type SurveyResponse = {
 
 export type SurveyView = {
   surveyId: string;
+  creationDate: DateTime;
+  expirationDate: DateTime;
   name: string;
   minNumberResponses: number;
   responses: SurveyResponseView[];

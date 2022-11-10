@@ -3,6 +3,7 @@ import express, { Router } from "express";
 import cors, { CorsOptions } from 'cors';
 import bodyParser from "body-parser";
 import { nanoid } from "nanoid";
+import { DateTime, Duration } from 'luxon';
 import { getSurvey, saveSurvey, updateSurvey } from "./persistence";
 import { CreateSurveyPayload, JoinSurveyPayload, Survey } from "./types";
 import { mapSurveyToView } from "./map";
@@ -42,8 +43,19 @@ survey.post("/create", async (req, res) => {
       const surveyId = nanoid();
       const creatorId = nanoid();
 
+      const HOURS_24: Duration = Duration.fromObject({
+        hours: 24
+      });
+
+      const now = DateTime.utc().set({
+        second: 0,
+        millisecond: 0
+      });
+
       const newSurvey: Survey = {
         surveyId,
+        creationDate: now,
+        expirationDate: now.plus(HOURS_24),
         creatorId,
         name: payload.name,
         minNumberResponses: payload.minNumberResponses,
@@ -78,7 +90,7 @@ survey.post("/:id/join", async (req, res) => {
     if (isJoinSurveyPayload(payload)) {
       const survey = await getSurvey(req.params.id);
 
-      if (survey) {
+      if (survey && isSurveyActive(survey)) {
         const respondentId = nanoid();
 
         const updatedSurvey: Survey = {
@@ -114,7 +126,7 @@ survey.get("/:id", async (req, res) => {
   try {
     const survey = await getSurvey(req.params.id);
 
-    if (survey) {
+    if (survey && isSurveyActive(survey)) {
       const myRespondentId = req.headers["x-respondent-id"];
 
       if (Array.isArray(myRespondentId)) {
@@ -146,6 +158,10 @@ app.use("/survey", survey);
 app.get("*", (req, res) => res.sendStatus(404));
 
 export { app };
+
+const isSurveyActive = (survey: Survey): boolean => {
+  return survey.expirationDate >= DateTime.now();
+}
 
 const isCreateSurveyPayload = (
   payload: any
