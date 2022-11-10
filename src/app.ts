@@ -90,7 +90,7 @@ survey.post("/:id/join", async (req, res) => {
     if (isJoinSurveyPayload(payload)) {
       const survey = await getSurvey(req.params.id);
 
-      if (survey) {
+      if (survey && isSurveyActive(survey)) {
         const respondentId = nanoid();
 
         const updatedSurvey: Survey = {
@@ -126,7 +126,7 @@ survey.get("/:id", async (req, res) => {
   try {
     const survey = await getSurvey(req.params.id);
 
-    if (survey) {
+    if (survey && isSurveyActive(survey)) {
       const myRespondentId = req.headers["x-respondent-id"];
 
       if (Array.isArray(myRespondentId)) {
@@ -158,6 +158,10 @@ app.use("/survey", survey);
 app.get("*", (req, res) => res.sendStatus(404));
 
 export { app };
+
+const isSurveyActive = (survey: Survey): boolean => {
+  return survey.expirationDate >= DateTime.now();
+}
 
 const isCreateSurveyPayload = (
   payload: any
