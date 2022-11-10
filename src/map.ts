@@ -5,6 +5,8 @@ export const mapSurveyToView = (survey: Survey, myRespondentId: string | undefin
 
   return {
     surveyId: survey.surveyId,
+    creationDate: survey.creationDate,
+    expirationDate: survey.expirationDate,
     name: hasResponded ? survey.name : '',
     minNumberResponses: survey.minNumberResponses,
     responses: survey.responses.map(response => {

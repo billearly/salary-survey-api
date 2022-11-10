@@ -55,6 +55,8 @@ const SurveyResponseSchema = new Schema<SurveyResponse>(
 const SurveySchema = new Schema<Survey>({
   surveyId: String,
   creatorId: String,
+  creationDate: Date,
+  expirationDate: Date,
   name: String,
   minNumberResponses: Number,
   responses: [SurveyResponseSchema],
