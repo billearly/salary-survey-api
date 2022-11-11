@@ -47,15 +47,17 @@ survey.post("/create", async (req, res) => {
         hours: 24
       });
 
-      const now = DateTime.utc().set({
+      const creationDate = DateTime.utc().set({
         second: 0,
         millisecond: 0
       });
 
+      const expirationDate = creationDate.plus(HOURS_24);
+
       const newSurvey: Survey = {
         surveyId,
-        creationDate: now,
-        expirationDate: now.plus(HOURS_24),
+        creationDate,
+        expirationDate,
         creatorId,
         name: payload.name,
         minNumberResponses: payload.minNumberResponses,
@@ -73,6 +75,7 @@ survey.post("/create", async (req, res) => {
       res.send({
         surveyId,
         respondentId: creatorId,
+        expirationDate
       });
     } else {
       res.sendStatus(400);
