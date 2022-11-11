@@ -112,6 +112,7 @@ survey.post("/:id/join", async (req, res) => {
 
         res.send({
           respondentId,
+          expirationDate: updatedSurvey.expirationDate
         });
       } else {
         res.send(404);
